@@ -235,11 +235,11 @@ func DownloadBlockedList() (nets []string) {
 }
 
 func CIDRMatch(nets []string, ne string) bool {
-	for _, i := range nets {
-		if strings.Index(i, "Updated") != -1 {
+	for i := len(nets)-1; i >= 0; i-- {
+		if strings.Index(nets[i], "Updated") != -1 {
 			continue
 		}
-		_, cidrnet, err := net.ParseCIDR(i)
+		_, cidrnet, err := net.ParseCIDR(nets[i])
 		if err != nil {
 			log.Println(err) // assuming I did it right above
 		}
