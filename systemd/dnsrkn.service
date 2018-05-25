@@ -1,0 +1,12 @@
+[Unit]
+Description=DNS proxy PSN
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/sysconfig/dnsrec
+ExecStart=/usr/bin/dnsrec $OPTIONS
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target
