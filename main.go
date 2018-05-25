@@ -26,6 +26,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"sort"
 )
 
 var (
@@ -229,12 +230,13 @@ func DownloadBlockedList() (nets []string) {
 			result = append(result, networks[v])
 		}
 	}
+	sort.Strings(result)
 	return result
 }
 
 func CIDRMatch(nets []string, ne string) bool {
-	for o, i := range nets {
-		if o == 0 {
+	for _, i := range nets {
+		if strings.Index(i, "Updated") != -1 {
 			continue
 		}
 		_, cidrnet, err := net.ParseCIDR(i)
