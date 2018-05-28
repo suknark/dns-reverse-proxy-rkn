@@ -23,10 +23,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
-	"sort"
 )
 
 var (
@@ -69,7 +69,7 @@ func main() {
 			log.Println("Download block list")
 			subnets = DownloadBlockedList()
 			log.Println("Done")
-			log.Println("Subnets count:", len(subnets))
+			log.Println("Ips count:", len(subnets))
 			time.Sleep(3 * time.Hour)
 		}
 	}()
@@ -229,11 +229,48 @@ func DownloadBlockedList() (nets []string) {
 		}
 	}
 	sort.Strings(result)
-	return result
+	return GenerateIPs(result)
+}
+
+func inc(ip net.IP) {
+	for j := len(ip)-1; j>=0; j-- {
+		ip[j]++
+		if ip[j] > 0 {
+			break
+		}
+	}
+}
+
+func GenerateIPs(nets []string) (ipp []string) {
+	//var ipp []string
+	for _, a := range nets {
+		if strings.Index(a, "Updated") != -1 {
+			continue
+		}
+		ip, ipnet, err := net.ParseCIDR(a)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
+			//log.Println(ip.String())
+			ipp = append(ipp, ip.String())
+		}
+	}
+	log.Println("Ip adresses ", len(ipp))
+	return ipp
 }
 
 func CIDRMatch(nets []string, ne string) bool {
-	for _, n := range(nets) {
+	i := sort.Search(len(nets), func(i int) bool { return ne <= nets[i] })
+	if i < len(nets) && nets[i] == ne {
+		return false
+	} else {
+		return true
+	}
+}
+
+/*func CIDRMatch(nets []string, ne string) bool {
+	for _, n := range nets {
 		if strings.Index(n, "Updated") != -1 {
 			continue
 		}
@@ -250,4 +287,4 @@ func CIDRMatch(nets []string, ne string) bool {
 		}
 	}
 	return true
-}
+}*/
