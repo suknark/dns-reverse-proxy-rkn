@@ -222,11 +222,9 @@ func DownloadBlockedList() (nets []string) {
 
 	for v := range networks {
 		if encountered[networks[v]] == true {
-			// Do not add duplicate.
+			continue
 		} else {
-			// Record this element as an encountered element.
 			encountered[networks[v]] = true
-			// Append to result slice.
 			result = append(result, networks[v])
 		}
 	}
