@@ -27,6 +27,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"bytes"
 )
 
 var (
@@ -228,7 +229,6 @@ func DownloadBlockedList() (nets []string) {
 			result = append(result, networks[v])
 		}
 	}
-	sort.Strings(result)
 	return GenerateIPs(result)
 }
 
@@ -252,12 +252,38 @@ func GenerateIPs(nets []string) (ipp []string) {
 			log.Fatal(err)
 		}
 		for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
-			//log.Println(ip.String())
 			ipp = append(ipp, ip.String())
 		}
 	}
 	log.Println("Ip adresses ", len(ipp))
-	return ipp
+	realIPs := make([]net.IP, 0, len(ipp))
+	log.Println("Sorting ips")
+	for _, ippp := range ipp {
+		realIPs = append(realIPs, net.ParseIP(ippp))
+	}	
+	sort.Slice(realIPs, func(i, j int) bool {
+		return bytes.Compare(realIPs[i], realIPs[j]) < 0
+	})
+	var oo []string
+	for _, o := range(realIPs) {
+		oo = append(oo, o.String())
+	//	log.Println(o.String())
+	}
+	encountered := map[string]bool{}
+	result := []string{}
+
+	for v := range oo {
+		if encountered[oo[v]] == true {
+			continue
+		} else {
+			encountered[oo[v]] = true
+			result = append(result, oo[v])
+		}
+	}
+
+	sort.Strings(result)
+	log.Println("Sorting complite")
+	return result
 }
 
 func CIDRMatch(nets []string, ne string) bool {
