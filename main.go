@@ -67,10 +67,9 @@ func main() {
 	}
 	go func() {
 		for {
-			log.Println("Download block list")
+			log.Println("Downloading block list")
 			subnets = DownloadBlockedList()
 			log.Println("Done")
-			log.Println("Ips count:", len(subnets))
 			time.Sleep(3 * time.Hour)
 		}
 	}()
