@@ -15,6 +15,7 @@ However, a query for subdomain.example.com will go to 8.8.4.4:53.
 package main
 
 import (
+	"bytes"
 	"flag"
 	"github.com/miekg/dns"
 	"io/ioutil"
@@ -27,7 +28,6 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	"bytes"
 )
 
 var (
@@ -232,7 +232,7 @@ func DownloadBlockedList() (nets []string) {
 }
 
 func inc(ip net.IP) {
-	for j := len(ip)-1; j>=0; j-- {
+	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]++
 		if ip[j] > 0 {
 			break
@@ -259,14 +259,14 @@ func GenerateIPs(nets []string) (ipp []string) {
 	log.Println("Sorting ips")
 	for _, ippp := range ipp {
 		realIPs = append(realIPs, net.ParseIP(ippp))
-	}	
+	}
 	sort.Slice(realIPs, func(i, j int) bool {
 		return bytes.Compare(realIPs[i], realIPs[j]) < 0
 	})
 	var oo []string
-	for _, o := range(realIPs) {
+	for _, o := range realIPs {
 		oo = append(oo, o.String())
-	//	log.Println(o.String())
+		//	log.Println(o.String())
 	}
 	encountered := map[string]bool{}
 	result := []string{}
